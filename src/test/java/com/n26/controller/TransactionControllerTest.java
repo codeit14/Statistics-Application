@@ -18,6 +18,9 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Tests for Transaction Controller
+ */
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class TransactionControllerTest {
@@ -26,6 +29,9 @@ public class TransactionControllerTest {
     @Autowired
     private TestRestTemplate testRestTemplate;
 
+    /**
+     * Tests for adding transaction happy flow (201 CREATED)
+     */
     @Test
     public void testAddTransactionHappyFlow() {
         long currentTimeInSeconds = Instant.now().toEpochMilli() / 1000L;
@@ -40,6 +46,9 @@ public class TransactionControllerTest {
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
     }
 
+    /**
+     * Tests for adding transaction, getting unprocessable entity (422 UNPROCESSABLE_ENTITY)
+     */
     @Test
     public void testAddTransactionWhenUnprocessableEntity() {
         long currentTimeInSeconds = Instant.now().toEpochMilli() / 1000L;
@@ -54,6 +63,9 @@ public class TransactionControllerTest {
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
+    /**
+     * Tests for adding transaction, getting no content (204 NO_CONTENT)
+     */
     @Test
     public void testAddTransactionWhenNoContent() {
         long currentTimeInSeconds = Instant.now().toEpochMilli() / 1000L;
@@ -68,7 +80,9 @@ public class TransactionControllerTest {
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
     }
 
-
+    /**
+     * Tests for adding transaction, getting bad request (400 BAD_REQUEST)
+     */
     @Test
     public void testAddTransactionWhenBadRequest() {
         HttpHeaders headers = new HttpHeaders();
@@ -80,6 +94,9 @@ public class TransactionControllerTest {
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
+    /**
+     * Tests for deleting transaction, getting no content (204 NO_CONTENT)
+     */
     @Test
     public void testDeleteTransactions() {
         ResponseEntity<Void> response = testRestTemplate.exchange("/transactions", HttpMethod.DELETE, null,

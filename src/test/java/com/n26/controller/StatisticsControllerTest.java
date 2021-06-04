@@ -18,6 +18,9 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Tests for Statistics Controller
+ */
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class StatisticsControllerTest {
@@ -26,6 +29,9 @@ public class StatisticsControllerTest {
     @Autowired
     private TestRestTemplate testRestTemplate;
 
+    /**
+     * Tests for getting statistics, 200 OK
+     */
     @Test
     public void testGetStatistics() {
         long currentTimeInSeconds = Instant.now().toEpochMilli() / 1000L;
