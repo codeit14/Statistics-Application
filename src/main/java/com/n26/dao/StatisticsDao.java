@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -13,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Component
 public class StatisticsDao {
-    private final ConcurrentHashMap<Long, Statistics> secondToStatsMap;
+    private final Map<Long, Statistics> secondToStatsMap;
 
     public StatisticsDao() {
         secondToStatsMap = new ConcurrentHashMap<>();

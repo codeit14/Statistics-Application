@@ -1,8 +1,5 @@
-package com.n26.controllers;
+package com.n26.exceptions;
 
-import com.n26.exceptions.InvalidJSONException;
-import com.n26.exceptions.InvalidTimestampException;
-import com.n26.exceptions.ParsingException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -10,7 +7,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import static org.springframework.http.HttpStatus.*;
 
 @ControllerAdvice
-public class ExceptionController {
+public class StatisticsExceptionHandler {
 
     @ResponseStatus(UNPROCESSABLE_ENTITY)
     @ExceptionHandler(ParsingException.class)
