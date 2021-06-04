@@ -4,11 +4,13 @@ import com.n26.entities.Statistics;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 @Data
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class StatisticsDto {
     private String sum;
     private String avg;
