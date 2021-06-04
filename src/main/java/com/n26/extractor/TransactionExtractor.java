@@ -38,22 +38,29 @@ public class TransactionExtractor {
         ObjectMapper objectMapper = new ObjectMapper();
         Transaction transaction;
 
+
         try {
             JsonNode jsonNode = objectMapper.readValue(inputTransaction, JsonNode.class);
 
             if (isAnyOfTheAttributesNull(jsonNode)) {
+                logger.error(String.format("Exception occurred while deserializing: %s", jsonNode));
                 throw new InvalidJSONException();
             }
 
-            String date = jsonNode.get(TIMESTAMP_ATTRIB).textValue();
-            Date parsedDate = Date.from(ZonedDateTime.parse(date).toInstant());
-            long timestampInMillis = parsedDate.getTime();
+            try {
+                String date = jsonNode.get(TIMESTAMP_ATTRIB).textValue();
+                Date parsedDate = Date.from(ZonedDateTime.parse(date).toInstant());
+                long timestampInMillis = parsedDate.getTime();
 
-            String amountString = jsonNode.get(AMOUNT_ATTRIB).textValue();
-            transaction = new Transaction(new BigDecimal(amountString), timestampInMillis / 1000L);
-        } catch (IOException | NumberFormatException | DateTimeParseException e) {
-            logger.error(String.format("Issue while parsing JSON: %s", e.getMessage()));
-            throw new ParsingException("Issue while paring JSON fields for transaction");
+                String amountString = jsonNode.get(AMOUNT_ATTRIB).textValue();
+                transaction = new Transaction(new BigDecimal(amountString), timestampInMillis / 1000L);
+            } catch (NumberFormatException | DateTimeParseException e) {
+                logger.error(String.format("Issue while parsing JSON: %s", e.getMessage()));
+                throw new ParsingException("Issue while paring JSON fields for transaction");
+            }
+        } catch (IOException e) {
+            logger.error(String.format("Exception occurred while deserializing JSON: %s", inputTransaction));
+            throw new InvalidJSONException();
         }
 
         return transaction;

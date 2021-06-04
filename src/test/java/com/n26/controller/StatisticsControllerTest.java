@@ -21,6 +21,7 @@ import java.time.format.DateTimeFormatter;
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class StatisticsControllerTest {
+    private static final String IS0_8601_PATTERN = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
     @Autowired
     private TestRestTemplate testRestTemplate;
@@ -30,12 +31,12 @@ public class StatisticsControllerTest {
         long currentTimeInSeconds = Instant.now().toEpochMilli() / 1000L;
         testRestTemplate.delete("/transactions");
 
-        StatisticsDto statisticsDto = getStatistics();
+        StatisticsDto expectedStatisticsDto = getExpectedStatistics();
 
         int nanoOfSecond = 0;
         ZoneOffset offset = ZoneOffset.UTC;
-        LocalDateTime dateTimeInIS08601Format = LocalDateTime.ofEpochSecond(currentTimeInSeconds, nanoOfSecond, offset);
-        String timestamp = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'").format(dateTimeInIS08601Format);
+        LocalDateTime dateTime = LocalDateTime.ofEpochSecond(currentTimeInSeconds, nanoOfSecond, offset);
+        String timestamp = DateTimeFormatter.ofPattern(IS0_8601_PATTERN).format(dateTime);
 
         String requestBody1 = String.format("{\"amount\":\"200.0\", \"timestamp\":\"%s\"}", timestamp);
         String requestBody2 = String.format("{\"amount\":\"202.0\", \"timestamp\":\"%s\"}", timestamp);
@@ -47,10 +48,10 @@ public class StatisticsControllerTest {
 
         ResponseEntity<StatisticsDto> response = testRestTemplate.getForEntity("/statistics", StatisticsDto.class);
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        Assertions.assertThat(statisticsDto).isEqualTo(response.getBody());
+        Assertions.assertThat(expectedStatisticsDto).isEqualTo(response.getBody());
     }
 
-    private StatisticsDto getStatistics() {
+    private StatisticsDto getExpectedStatistics() {
         StatisticsDto statisticsDto = new StatisticsDto();
         statisticsDto.setCount(3);
         statisticsDto.setMin(BigDecimal.valueOf(200).setScale(2, RoundingMode.HALF_UP).toString());

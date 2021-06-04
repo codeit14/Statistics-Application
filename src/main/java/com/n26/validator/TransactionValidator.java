@@ -15,12 +15,17 @@ public class TransactionValidator {
     private static final Logger logger = LoggerFactory.getLogger(TransactionValidator.class);
 
     public static void validate(Transaction transaction, long evictionTimeInSeconds) {
-        if (transaction.getTimestamp() <= evictionTimeInSeconds)
+        if (transaction.getTimestamp() <= evictionTimeInSeconds) {
+            logger.error(String.format("Invalid timestamp, timestamp is before eviction threshold %s",
+                    transaction.getTimestamp()));
+
             throw new InvalidTimestampException();
+        }
 
         if (transaction.getTimestamp() > ((Instant.now().toEpochMilli()) / 1000L)) {
-            logger.info(String.format("Timestamp is of future: %s", transaction.getTimestamp()));
-            throw new ParsingException("Timestamp is of future");
+            String message = String.format("Timestamp is of future : %s", transaction.getTimestamp());
+            logger.error(message);
+            throw new ParsingException(message);
         }
 
     }
