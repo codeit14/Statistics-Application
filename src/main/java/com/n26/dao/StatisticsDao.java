@@ -35,11 +35,8 @@ public class StatisticsDao {
         return secondToStatsMap.containsKey(second);
     }
 
-    public void evictEntriesBasedOnThreshold(long evictionThresholdInSeconds) {
-        secondToStatsMap.forEach((k, v) -> {
-            if (k < evictionThresholdInSeconds)
-                secondToStatsMap.remove(k);
-        });
+    public Statistics remove(long second) {
+        return secondToStatsMap.remove(second);
     }
 
     public void clear() {

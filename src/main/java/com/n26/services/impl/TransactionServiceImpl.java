@@ -12,17 +12,23 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+import static com.n26.constants.TransactionConstants.EVICTION_TIMESTAMP_LIMIT_IN_SECONDS;
+
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class TransactionServiceImpl implements TransactionService {
     private final StatisticsDao statisticsDao;
 
     @Override
-    public void addTransaction(Transaction transaction, long evictionTimeInSeconds) {
+    public void addTransaction(Transaction transaction, long currentTimeInSeconds) {
+        long evictionTimeInSeconds = currentTimeInSeconds - EVICTION_TIMESTAMP_LIMIT_IN_SECONDS;
         TransactionValidator.validate(transaction, evictionTimeInSeconds);
-        Statistics statistics = calculateStatistics(transaction);
-        statisticsDao.add(transaction.getTimestamp(), statistics);
-        statisticsDao.evictEntriesBasedOnThreshold(evictionTimeInSeconds);
+
+        synchronized (this) {
+            Statistics statistics = calculateStatistics(transaction);
+            statisticsDao.add(transaction.getTimestamp(), statistics);
+            evictEntriesBasedOnThreshold(evictionTimeInSeconds);
+        }
     }
 
     @Override
@@ -43,5 +49,12 @@ public class TransactionServiceImpl implements TransactionService {
         }
 
         return stats;
+    }
+
+    private void evictEntriesBasedOnThreshold(long evictionThresholdInSeconds) {
+        statisticsDao.getAll().forEach(timestamp -> {
+            if (timestamp < evictionThresholdInSeconds)
+                statisticsDao.remove(timestamp);
+        });
     }
 }

@@ -6,5 +6,5 @@ import com.n26.dtos.StatisticsDto;
  * Service responsible for calculation of statistics
  */
 public interface StatisticsService {
-    StatisticsDto getStatistics(long evictionTimeInSeconds);
+    StatisticsDto getStatistics(long currentTimeInSeconds);
 }

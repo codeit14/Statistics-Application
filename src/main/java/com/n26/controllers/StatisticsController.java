@@ -21,8 +21,8 @@ public class StatisticsController {
 
     @RequestMapping(value = "/statistics", method = RequestMethod.GET)
     public ResponseEntity<StatisticsDto> getStatistics() {
-        long evictionTimeInSeconds = (Instant.now().toEpochMilli()) / 1000L - EVICTION_TIMESTAMP_LIMIT_IN_SECONDS;
-        StatisticsDto statistics =  statisticsService.getStatistics(evictionTimeInSeconds);
+        long currentTimeInSeconds = (Instant.now().toEpochMilli()) / 1000L;
+        StatisticsDto statistics =  statisticsService.getStatistics(currentTimeInSeconds);
         return new ResponseEntity<>(statistics, HttpStatus.OK);
     }
 

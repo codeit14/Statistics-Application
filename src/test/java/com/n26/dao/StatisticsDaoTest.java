@@ -3,6 +3,7 @@ package com.n26.dao;
 import com.n26.entities.Statistics;
 import com.n26.entities.Transaction;
 import org.assertj.core.api.Assertions;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.math.BigDecimal;
@@ -68,16 +69,15 @@ public class StatisticsDaoTest {
     }
 
     /**
-     * Tests eviction of entries based on given threshold
+     * Tests removal of key
      */
     @Test
-    public void testEvictEntriesBasedOnThreshold() {
-        long evictionThreshold = 1500L;
+    public void testRemoveKey() {
         StatisticsDao statsDao = new StatisticsDao();
         statsDao.add(SAMPLE_TRANSACTION_1.getTimestamp(), Statistics.getStatisticsForATransaction(SAMPLE_TRANSACTION_1));
         statsDao.add(SAMPLE_TRANSACTION_2.getTimestamp(), Statistics.getStatisticsForATransaction(SAMPLE_TRANSACTION_2));
 
-        statsDao.evictEntriesBasedOnThreshold(evictionThreshold);
+        statsDao.remove(SAMPLE_TRANSACTION_1.getTimestamp());
         Assertions.assertThat(statsDao.contains(SAMPLE_TRANSACTION_1.getTimestamp())).isFalse();
         Assertions.assertThat(statsDao.contains(SAMPLE_TRANSACTION_2.getTimestamp())).isTrue();
     }

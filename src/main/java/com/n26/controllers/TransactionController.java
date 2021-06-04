@@ -23,9 +23,9 @@ public class TransactionController {
 
     @RequestMapping(value = "/transactions", method = RequestMethod.POST)
     public ResponseEntity<Void> addTransaction(@RequestBody String requestBody) {
-        long evictionTimeInSeconds = (Instant.now().toEpochMilli()) / 1000L - EVICTION_TIMESTAMP_LIMIT_IN_SECONDS;
+        long currentTimeInSeconds = (Instant.now().toEpochMilli()) / 1000L;
         Transaction transaction = TransactionExtractor.extract(requestBody);
-        transactionService.addTransaction(transaction, evictionTimeInSeconds);
+        transactionService.addTransaction(transaction, currentTimeInSeconds);
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }

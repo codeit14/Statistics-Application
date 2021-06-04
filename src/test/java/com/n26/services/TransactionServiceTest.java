@@ -14,6 +14,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -41,7 +43,6 @@ public class TransactionServiceTest {
      */
     @Test
     public void testAddTransactionIfTimestampAlreadyPresent() {
-        long evictionThreshold = currentTimeInSeconds - 60L;
         Statistics expectedStats = Statistics.builder()
                 .sum(BigDecimal.valueOf(200).setScale(2, RoundingMode.HALF_UP))
                 .count(3L)
@@ -58,11 +59,19 @@ public class TransactionServiceTest {
                 .avg(BigDecimal.valueOf(50))
                 .build());
 
-        transactionService.addTransaction(SAMPLE_TRANSACTION, evictionThreshold);
+        List<Long> timestamps = new ArrayList<>();
+        timestamps.add(SAMPLE_TRANSACTION.getTimestamp());
+        timestamps.add(SAMPLE_TRANSACTION.getTimestamp() - 65);
+
+        when(statisticsDao.getAll()).thenReturn(timestamps);
+
+        transactionService.addTransaction(SAMPLE_TRANSACTION, currentTimeInSeconds);
         ArgumentCaptor<Statistics> statsCaptor = ArgumentCaptor.forClass(Statistics.class);
         verify(statisticsDao, times(1)).add(eq(SAMPLE_TRANSACTION.getTimestamp()), statsCaptor.capture());
         Assertions.assertThat(statsCaptor.getValue()).isEqualTo(expectedStats);
-        verify(statisticsDao, times(1)).evictEntriesBasedOnThreshold(evictionThreshold);
+
+        // Old transactions gets evicted
+        verify(statisticsDao, times(1)).remove(SAMPLE_TRANSACTION.getTimestamp() - 65);
     }
 
     /**
@@ -70,15 +79,13 @@ public class TransactionServiceTest {
      */
     @Test
     public void testAddTransactionIfTimestampNotPresent() {
-        long evictionThreshold = currentTimeInSeconds - 60L;
         Statistics expectedStats = Statistics.getStatisticsForATransaction(SAMPLE_TRANSACTION);
         when(statisticsDao.contains(SAMPLE_TRANSACTION.getTimestamp())).thenReturn(false);
 
-        transactionService.addTransaction(SAMPLE_TRANSACTION, evictionThreshold);
+        transactionService.addTransaction(SAMPLE_TRANSACTION, currentTimeInSeconds);
         ArgumentCaptor<Statistics> statsCaptor = ArgumentCaptor.forClass(Statistics.class);
         verify(statisticsDao, times(1)).add(eq(SAMPLE_TRANSACTION.getTimestamp()), statsCaptor.capture());
         Assertions.assertThat(statsCaptor.getValue()).isEqualTo(expectedStats);
-        verify(statisticsDao, times(1)).evictEntriesBasedOnThreshold(evictionThreshold);
     }
 
     /**
